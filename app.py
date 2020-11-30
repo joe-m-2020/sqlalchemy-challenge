@@ -19,7 +19,7 @@ Base.prepare(engine, reflect=True)
 
 # Save reference to the table
 Measurement = Base.classes.measurement
-
+Station = Base.classes.station
 
 #############################################
 #Flask Setup
@@ -60,10 +60,22 @@ def precipitation():
     measurement_dict={}
     for date, prcp in results:
         measurement_dict[date]=prcp
-       
-        
     return jsonify(measurement_dict)
 
 
+@app.route('/api/v1.0/stations')
+def stations():
+    session=Session(engine)
+
+    #query date and prcp
+    results=session.query(Station.name).all()
+    session.close()
+
+    station_names=[]
+    for name in results:
+        station_names.append(name[0])
+    return jsonify(station_names)
+    
+    
 if __name__ == '__main__':
     app.run(debug=True)
