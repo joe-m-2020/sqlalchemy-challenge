@@ -5,6 +5,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 from flask import Flask, jsonify
+import datetime as dt
 
 #############################################
 #DB Setup
@@ -39,8 +40,10 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"/api/v1.0/start_date/<br/>"
+        f"Enter Starting Date for Min Temp, Max Temp, and Average Temp recorded on or after date ######DATE MUST BE IN YYYY/MM/DD format####</br/>"
+        f"/api/v1.0/start_date/end_date</br/>"
+        f"Enter Starting Date/End Date for Min Temp, Max Temp, and Average Temp recorded on or between dates ######DATE MUST BE IN YYYY/MM/DD format####"
     )
 
 
@@ -76,6 +79,49 @@ def stations():
         station_names.append(name[0])
     return jsonify(station_names)
     
+
+@app.route('/api/v1.0/tobs')
+def tobs():
+    session=Session(engine)
+
+    results=session.query(Measurement.tobs).\
+    filter(Measurement.station=='USC00519281').\
+    filter(Measurement.date>='2016-08-18').all()
+
+    session.close()
+
+    tobs_list=[]
+    for temp in results:
+        tobs_list.append(temp[0])
+    return jsonify(tobs_list)
+
+@app.route('/api/v1.0/<start>')
+def start_date(start):
+    normalized = dt.datetime.strptime(start, '%Y-%m-%d')
+    session=Session(engine)
+    results=session.query(func.min(Measurement.tobs), func.max(Measurement.tobs),func.avg(Measurement.tobs)).\
+        filter(Measurement.date>=normalized).all()
     
+
+    stats_list=[]
+    for result in results:
+        stats_list.append(result)
+    return jsonify(stats_list)
+
+@app.route('/api/v1.0/<start>/<end>')
+def start_end_date(start,end):
+    normalized_start = dt.datetime.strptime(start, '%Y-%m-%d')
+    normalized_end = dt.datetime.strptime(end, '%Y-%m-%d')
+    session=Session(engine)
+    results=session.query(func.min(Measurement.tobs), func.max(Measurement.tobs),func.avg(Measurement.tobs)).\
+        filter(Measurement.date>=normalized_start).\
+        filter(Measurement.date<=normalized_end).all()
+    
+
+    stats_list=[]
+    for result in results:
+        stats_list.append(result)
+    return jsonify(stats_list)
+
 if __name__ == '__main__':
     app.run(debug=True)
