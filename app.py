@@ -40,9 +40,9 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start_date/<br/>"
+        f"/api/v1.0/<start><br/>"
         f"Enter Starting Date for Min Temp, Max Temp, and Average Temp recorded on or after date ######DATE MUST BE IN YYYY/MM/DD format####</br/>"
-        f"/api/v1.0/start_date/end_date</br/>"
+        f"/api/v1.0/<start>/<end></br/>"
         f"Enter Starting Date/End Date for Min Temp, Max Temp, and Average Temp recorded on or between dates ######DATE MUST BE IN YYYY/MM/DD format####"
     )
 
